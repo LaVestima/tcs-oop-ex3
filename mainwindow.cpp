@@ -19,38 +19,40 @@ void MainWindow::on_pushButton_clicked() {
     ui->BXafterLineEdit->setText("");
     ui->BYafterLineEdit->setText("");
 
-    QString errorString = "<p style='color:red'>ERRORS:</p>";
-    int errorCount = 0;
+    QString errorString = "<font style='color:red'>ERRORS:</font>";
+    bool errorBool = false;
+    bool compareBool = false;
+    bool toDoubleBool = false;
 
     for (int i = 1; i <= 12; i++) {
         QRadioButton* operatorButton = findChild<QRadioButton*>("radioButton_" + QString::number(i));
 
         if (operatorButton == 0) {
             errorString += "<br>Can't find the operator";
-            errorCount++;
+            errorBool = true;
             break;
         }
 
         if (operatorButton->isChecked()) {
-            int AX = ui->AXbeforeLineEdit->text().toInt();
-            if (!AX) {
+            int AX = ui->AXbeforeLineEdit->text().toDouble(&toDoubleBool);
+            if (!toDoubleBool) {
                 errorString += "<br>Ax is not a number!";
-                errorCount++;
+                errorBool = true;
             }
-            int AY = ui->AYbeforeLineEdit->text().toInt();
-            if (!AY) {
+            int AY = ui->AYbeforeLineEdit->text().toInt(&toDoubleBool);
+            if (!toDoubleBool) {
                 errorString += "<br>Ay is not a number!";
-                errorCount++;
+                errorBool = true;
             }
-            int BX = ui->BXbeforeLineEdit->text().toInt();
-            if (!BX) {
+            int BX = ui->BXbeforeLineEdit->text().toInt(&toDoubleBool);
+            if (!toDoubleBool) {
                 errorString += "<br>Bx is not a number!";
-                errorCount++;
+                errorBool = true;
             }
-            int BY = ui->BYbeforeLineEdit->text().toInt();
-            if (!BY) {
+            int BY = ui->BYbeforeLineEdit->text().toInt(&toDoubleBool);
+            if (!toDoubleBool) {
                 errorString += "<br>By is not a number!";
-                errorCount++;
+                errorBool = true;
             }
 
             Complex A(AX, AY),
@@ -105,6 +107,18 @@ void MainWindow::on_pushButton_clicked() {
             case 8: // /=
                 A /= B;
                 break;
+            case 9: // <
+                compareBool = A<B ? true : false;
+                break;
+            case 10: // >
+                compareBool = A>B ? true : false;
+                break;
+            case 11: // <=
+                compareBool = A<=B ? true : false;
+                break;
+            case 12: // >=
+                compareBool = A>=B ? true : false;
+                break;
             }
 
             if (AincrNumber == 1) A++;
@@ -112,16 +126,28 @@ void MainWindow::on_pushButton_clicked() {
             if (AincrNumber == 2) A--;
             if (BincrNumber == 2) B--;
 
-            if (errorCount > 0) {
+            if (errorBool == true) {
                 ui->errorLabel->setText(errorString);
             }
+            else {
+                ui->AXafterLineEdit->setText(QString::number(A.getRe()));
+                ui->AYafterLineEdit->setText(QString::number(A.getIm()));
+                ui->BXafterLineEdit->setText(QString::number(B.getRe()));
+                ui->BYafterLineEdit->setText(QString::number(B.getIm()));
+                if (i >= 1 && i <=8) {
+                    ui->CXLineEdit->setText(QString::number(C.getRe()));
+                    ui->CYLineEdit->setText(QString::number(C.getIm()));
+                }
+                else if (i >= 9 && i <= 12){
+                    if (compareBool == true) {
+                        ui->errorLabel->setText("<p style='color:green'>TRUE</p>");
+                    }
+                    else {
+                        ui->errorLabel->setText("<p style='color:red'>FALSE</p>");
+                    }
+                }
+            }
 
-            ui->AXafterLineEdit->setText(QString::number(A.getRe()));
-            ui->AYafterLineEdit->setText(QString::number(A.getIm()));
-            ui->BXafterLineEdit->setText(QString::number(B.getRe()));
-            ui->BYafterLineEdit->setText(QString::number(B.getIm()));
-            ui->CXLineEdit->setText(QString::number(C.getRe()));
-            ui->CYLineEdit->setText(QString::number(C.getIm()));
             break;
         }
     }
